@@ -1,0 +1,19 @@
+{{ template "base" . }}
+
+{{ define "content" }}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>{{ index .Data "title" }}</h1>
+                <p>{{ index .Data "description" }}</p>
+                <p>
+                    {{ if ne (index .Data "remote_ip") ""}}
+                        <strong>IP Address: </strong> {{ index .Data "remote_ip" }}
+                    {{ else }}
+                        <strong>IP Address: </strong> Not yet set. Please visit the homepage to set it.
+                    {{ end }}
+                </p>
+            </div>
+        </div>
+    </div>
+{{ end }}
