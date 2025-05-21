@@ -4,7 +4,7 @@ A simple web application for managing a bed and breakfast.
 ## Business Needs:
 - Bookings & Reservations
 - Room Management (2 rooms)
-# Key Functionality:
+## Key Functionality:
 - Showcase the property
 - Manage bookings (one or more nights)
 - Manage room availability
@@ -15,7 +15,12 @@ A simple web application for managing a bed and breakfast.
   - cancel bookings
   - update bookings
   - show calendar of bookings
-# Features:
+## Features:
 - Authentication System (owner)
 - Database
 - Email/Text notification system
+## Dependencies:
+- Go Version: 1.24.2
+- [Chi Router](https://github.com/go-chi/chi)
+- [SCS session management](https://github.com/alexedwards/scs)
+- [NoSurf](https://github.com/justinas/nosurf)
