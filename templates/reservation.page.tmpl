@@ -1,0 +1,94 @@
+{{ template "base" . }}
+
+{{ define "content" }}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mt-3">Make Reservation</h1>
+            </div>
+        </div>
+
+        <!-- Reservation Form -->
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-md-8">
+                <form action="" method="POST" class="needs-validation" novalidate>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" aria-describedby="firstNameHelp" name="first_name" required autocomplete="off">
+                                <div id="firstNameHelp" class="form-text">Enter your first name </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" aria-describedby="lastNameHelp" name="last_name" required autocomplete="off">
+                                <div id="lastNameHelp" class="form-text">Enter your last name</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email" required autocomplete="off">
+                                    <div id="emailHelp" class="form-text">Enter your Email Address</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone</label>
+                                    <input type="text" class="form-control" id="phone" aria-describedby="phoneHelp" name="phone" required autocomplete="off">
+                                    <div id="phoneHelp" class="form-text">Enter your Phone Number</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="roomType" class="form-label">Room Type</label>
+                                <select class="form-select" id="roomType" name="room_type" required>
+                                    <option value="" disabled selected>Select a room type</option>
+                                    <option value="General's Quarters">General's Quarters</option>
+                                    <option value="Major's Suite">Major's Suite</option>
+                                </select>
+                                <div id="roomTypeHelp" class="form-text">Select the type of room you wish to book</div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{{ end }}
+
+{{ define "js" }}
+    <script>
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                let forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.forEach.call(forms, function(form) {
+                    form.addEventListener('submit', function(e) {
+                        if (form.checkValidity() === false) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+
+                        form.classList.add('was-validated');
+                    }, false)
+                })
+            }, false)
+        })();
+    </script>
+{{ end }}

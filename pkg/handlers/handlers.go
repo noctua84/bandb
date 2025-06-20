@@ -4,6 +4,7 @@ import (
 	"bandb/models"
 	"bandb/pkg/config"
 	"bandb/pkg/render"
+	"log"
 	"net/http"
 )
 
@@ -25,6 +26,7 @@ func NewHandlers(r *Repository) {
 
 // Handler functions for the applications pages
 
+// Home handles the home page
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 	remoteIP := r.RemoteAddr
 	m.App.Session.Put(r.Context(), "remote_ip", remoteIP)
@@ -32,22 +34,92 @@ func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 	td := models.TemplateData{}
 
 	td.Data = map[string]interface{}{
-		"title":       "Home Page",
-		"description": "Welcome to the home page",
+		"title":       "Fort Tranquility B&B",
+		"description": "Welcome Fort Tranquility B&B",
 	}
 
-	render.UseTemplate(w, "home.page", &td)
+	render.UseTemplate(w, r, "home.page", &td)
 }
 
+// About handles the about page
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
-	remoteIP := m.App.Session.GetString(r.Context(), "remote_ip")
-
 	td := models.TemplateData{}
 	td.Data = map[string]interface{}{
 		"title":       "About Us",
 		"description": "This is the about page",
-		"remote_ip":   remoteIP,
 	}
 
-	render.UseTemplate(w, "about.page", &td)
+	render.UseTemplate(w, r, "about.page", &td)
+}
+
+// Generals handles the generals quarters page
+func (m *Repository) Generals(w http.ResponseWriter, r *http.Request) {
+	td := models.TemplateData{
+		Data: map[string]interface{}{
+			"title":       "Generals Quarters",
+			"description": "This is the generals quarters page",
+		},
+	}
+
+	render.UseTemplate(w, r, "generals.page", &td)
+}
+
+// Majors handles the majors page
+func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
+	td := models.TemplateData{
+		Data: map[string]interface{}{
+			"title":       "Majors Suite",
+			"description": "This is the majors suite page",
+		},
+	}
+	render.UseTemplate(w, r, "majors.page", &td)
+}
+
+// Contact handles the contact page
+func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
+	td := models.TemplateData{
+		Data: map[string]interface{}{
+			"title":       "Contact Us",
+			"description": "This is the contact page",
+		},
+	}
+
+	render.UseTemplate(w, r, "contact.page", &td)
+}
+
+// Reservation handles the reservation page
+func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
+	td := models.TemplateData{
+		Data: map[string]interface{}{
+			"title":       "Reservation",
+			"description": "This is the reservation page",
+		},
+	}
+
+	render.UseTemplate(w, r, "reservation.page", &td)
+}
+
+// Availability handles the availability page
+func (m *Repository) Availability(w http.ResponseWriter, r *http.Request) {
+	td := models.TemplateData{
+		Data: map[string]interface{}{
+			"title":       "Search for Availability",
+			"description": "Search for available rooms by start and end dates",
+		},
+	}
+
+	render.UseTemplate(w, r, "availability.page", &td)
+}
+
+// PostAvailability handles the post request for availability
+func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
+	startDate := r.FormValue("start_date")
+	endDate := r.FormValue("end_date")
+
+	log.Printf("Received availability request: Start Date: %s, End Date: %s", startDate, endDate)
+
+	_, err := w.Write([]byte("Post request for availability received. Form data logged."))
+	if err != nil {
+		return
+	}
 }

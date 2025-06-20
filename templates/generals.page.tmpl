@@ -1,0 +1,158 @@
+{{ template "base" . }}
+
+{{ define "content" }}
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">
+                <img src="../static/images/generals-quarters.png" alt="Generals Quarters" class="img-fluid mt-3 image-thumbnail room-img">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mt-3">General's Quarters</h1>
+            </div>
+        </div>
+        <div class="row mt-3 mb-5">
+            <div class="col-12 text-center">
+                <a href="/make-reservation-gq" class="btn btn-success">Check Availability</a>
+            </div>
+        </div>
+    </div>
+{{ end }}
+
+{{ define "js" }}
+    <script>
+        let attention = Prompt();
+
+        document.querySelector('.btn-success').addEventListener('click', function (event) {
+            const html = `<form action="" method="POST" class="needs-validation" novalidate id="reservationForm">
+                <div class="row">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <input type="date" class="form-control" id="startDate" name="start_date" aria-describedby="startDateHelp" required placeholder="Arrival">
+                                <div id="startDateHelp" class="form-text">Enter your arrival date (YYYY-MM-DD)</div>
+                            </div>
+                            <div class="col">
+                                <input type="date" class="form-control" id="endDate" name="end_date" aria-describedby="endDateHelp" required placeholder="Departure">
+                                <div id="endDateHelp" class="form-text">Enter your departure date (YYYY-MM-DD)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>`;
+            event.preventDefault(); // Prevent the default action of the button
+            attention.reserve({title: "Check Availability", message: html});
+        });
+
+        function Prompt() {
+            // Initialize SweetAlert2 mixins for modal and toast notifications with default settings
+            const modalMixin = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger',
+                },
+                buttonsStyling: false,
+                confirmButtonText: "Ok",
+                cancelButtonText: "Cancel",
+            })
+
+            const toastMixin = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', function () {
+                        Swal.stopTimer();
+                    });
+                    toast.addEventListener('mouseleave', function () {
+                        Swal.resumeTimer();
+                    });
+                }
+            })
+
+            const toast = function (params) {
+                const {
+                    message = "Default message",
+                    icon = "success",
+                    position = "top-end"
+                } = params;
+
+                toastMixin.fire({
+                    icon: icon,
+                    title: message,
+                    position: position,
+                });
+            }
+
+            const success = function (params) {
+                const {
+                    title = "",
+                    message = "",
+                    icon = "success",
+                    footer = "",
+                } = params;
+
+                modalMixin.fire({
+                    icon: icon,
+                    title: title,
+                    text: message,
+                    footer: footer,
+                });
+            }
+
+            const error = function (params) {
+                const {
+                    title = "Error",
+                    message = "An error occurred.",
+                    icon = "error",
+                    footer = "",
+                } = params;
+
+                modalMixin.fire({
+                    icon: icon,
+                    title: title,
+                    text: message,
+                    footer: footer,
+                    customClass: {
+                        confirmButton: 'btn btn-danger',
+                    }
+                });
+            }
+
+            async function reserve(params) {
+                const {
+                    message = "",
+                    title = "",
+                } = params;
+
+                const {value: formValues } = await modalMixin.fire({
+                    title: title,
+                    html: message,
+                    backdrop: false,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    preConfirm: () => {
+                        return [
+                            document.getElementById("startDate").value,
+                            document.getElementById("endDate").value
+                        ];
+                    }
+                });
+
+                if (formValues) {
+                    Swal.fire(JSON.stringify(formValues));
+                }
+            }
+            return {
+                toast: toast,
+                success: success,
+                error: error,
+                reserve: reserve
+            };
+        }
+    </script>
+{{ end }}

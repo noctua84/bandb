@@ -33,10 +33,16 @@ func main() {
 	app.Session = session
 
 	// create template cache
+	if app.UseCache {
+		fmt.Println("Creating template cache")
+
+		tc := render.CreateTemplateCache()
+		// assign template cache to app config
+		app.TemplateCache = tc
+		fmt.Println("Template cache: ", app.TemplateCache)
+	}
+
 	render.NewTemplates(&app)
-	tc := render.CreateTemplateCache()
-	// assign template cache to app config
-	app.TemplateCache = tc
 
 	// handlers repository
 	repo := handlers.NewRepo(&app)

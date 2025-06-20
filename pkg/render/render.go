@@ -4,6 +4,7 @@ import (
 	"bandb/models"
 	"bandb/pkg/config"
 	"bytes"
+	"github.com/justinas/nosurf"
 	"html/template"
 	"log"
 	"net/http"
@@ -16,12 +17,8 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
-func AddDefaultData(td *models.TemplateData) *models.TemplateData {
-	if app.UseCache {
-		td.Data["CSRFToken"] = "12345"
-	} else {
-		td.Data["CSRFToken"] = "67890"
-	}
+func AddDefaultData(td *models.TemplateData, req *http.Request) *models.TemplateData {
+	td.CSRFToken = nosurf.Token(req)
 
 	return td
 }
@@ -33,6 +30,11 @@ func CreateTemplateCache() map[string]*template.Template {
 	layouts, err := filepath.Glob("templates/*.layout.tmpl")
 	if err != nil {
 		log.Fatalf("Error loading layout templates: %v", err)
+	}
+
+	partials, err := filepath.Glob("templates/partials/*.tmpl")
+	if err != nil {
+		log.Fatalf("Error loading partial templates: %v", err)
 	}
 
 	pages, err := filepath.Glob("templates/*.page.tmpl")
@@ -49,7 +51,10 @@ func CreateTemplateCache() map[string]*template.Template {
 		ext := filepath.Ext(name)
 		t := name[:len(name)-len(ext)]
 
-		tmpl, err := template.ParseFiles(append([]string{page}, layouts...)...)
+		allFiles := append([]string{page}, layouts...)
+		allFiles = append(allFiles, partials...)
+
+		tmpl, err := template.ParseFiles(allFiles...)
 
 		if err != nil {
 			log.Fatalf("Error parsing template %s: %v", t, err)
@@ -61,7 +66,7 @@ func CreateTemplateCache() map[string]*template.Template {
 	return cache
 }
 
-func UseTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
+func UseTemplate(w http.ResponseWriter, req *http.Request, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
 
 	if app.UseCache {
@@ -72,6 +77,8 @@ func UseTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 
 	t, ok := tc[tmpl]
 
+	log.Printf("Using template %s", tmpl)
+
 	if !ok {
 		log.Printf("Template %s not found in cache", tmpl)
 		http.Error(w, "Template not found", http.StatusNotFound)
@@ -80,7 +87,7 @@ func UseTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 
 	buf := new(bytes.Buffer)
 
-	td = AddDefaultData(td)
+	td = AddDefaultData(td, req)
 
 	err := t.Execute(buf, td)
 	if err != nil {

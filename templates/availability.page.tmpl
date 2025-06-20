@@ -1,0 +1,36 @@
+{{ template "base" . }}
+
+{{ define "content" }}
+    <div class="container">
+
+        <!-- Search for Availability Form -->
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-md-6">
+                <h2 class="mt-3">{{ index .Data "title" }}</h2>
+                <p>{{ index .Data "description" }}</p>
+
+                <form action="/availability" method="POST">
+                    <input type="text" name="csrf_token" value="{{ index .CSRFToken }}" hidden />
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="startDate" class="form-check-label">Start Date</label>
+                                <input type="date" class="form-control form-check-input" id="startDate" aria-describedby="startDateHelp" name="start_date" required>
+                                <div id="startDateHelp" class="form-text">Enter your starting date in the form of YYYY-MM-DD</div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="endDate" class="form-check-label">End Date</label>
+                                <input type="date" class="form-control form-check-input" id="endDate" aria-describedby="endDateHelp" name="end_date" required>
+                                <div id="endDateHelp" class="form-text">Enter your end date in the form of YYYY-MM-DD</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{{ end }}
