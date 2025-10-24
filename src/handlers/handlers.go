@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"bandb/models"
-	"bandb/pkg/config"
-	"bandb/pkg/render"
+	"bandb/src/config"
+	"bandb/src/render"
 	"net/http"
 )
 
@@ -84,16 +84,4 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.UseTemplate(w, r, "contact.page", &td)
-}
-
-// Reservation handles the reservation page
-func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
-	td := models.TemplateData{
-		Data: map[string]interface{}{
-			"title":       "Reservation",
-			"description": "This is the reservation page",
-		},
-	}
-
-	render.UseTemplate(w, r, "reservation.page", &td)
 }

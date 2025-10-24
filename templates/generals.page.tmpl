@@ -43,116 +43,55 @@
                 </div>
             </form>`;
             event.preventDefault(); // Prevent the default action of the button
-            attention.reserve({title: "Check Availability", message: html});
+            attention.reserve({
+                title: "Check Availability",
+                message: html,
+                callback: function () {
+                    console.log("called")
+
+                    let form = document.getElementById('reservationForm');
+                    if (!form.checkValidity()) {
+                        form.classList.add('was-validated');
+                        return;
+                    }
+                    let formData = new FormData(form);
+                    formData.append("csrf_token", "{{ .CSRFToken }}");
+
+                    fetch('/availability-json', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then((response) => { return response.json();})
+                        .then((data) => {
+                            let available = false;
+                            if(data.ok) {
+                                available = true;
+                            }
+
+                            if (available) {
+                                attention.success({
+                                    title: "Room Available!",
+                                    message: "The General's Quarters is available for your selected dates. Please proceed to the reservation page.",
+                                    icon: "success",
+                                    footer: '<a href="/make-reservation-gq">Make a Reservation</a>'
+                                });
+                            } else {
+                                attention.error({
+                                    title: "No Availability",
+                                    message: "Unfortunately, the General's Quarters is not available for your selected dates. Please try different dates or contact us for assistance.",
+                                    icon: "error",
+                                });
+                            }
+                        }).catch((error) => {
+                            attention.error({
+                                title: "Error",
+                                message: "An error occurred while checking availability. Please try again later.",
+                                icon: "error",
+                            });
+                            console.error('Error:', error);
+                        })
+                }
+            });
         });
-
-        function Prompt() {
-            // Initialize SweetAlert2 mixins for modal and toast notifications with default settings
-            const modalMixin = Swal.mixin({
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    cancelButton: 'btn btn-danger',
-                },
-                buttonsStyling: false,
-                confirmButtonText: "Ok",
-                cancelButtonText: "Cancel",
-            })
-
-            const toastMixin = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', function () {
-                        Swal.stopTimer();
-                    });
-                    toast.addEventListener('mouseleave', function () {
-                        Swal.resumeTimer();
-                    });
-                }
-            })
-
-            const toast = function (params) {
-                const {
-                    message = "Default message",
-                    icon = "success",
-                    position = "top-end"
-                } = params;
-
-                toastMixin.fire({
-                    icon: icon,
-                    title: message,
-                    position: position,
-                });
-            }
-
-            const success = function (params) {
-                const {
-                    title = "",
-                    message = "",
-                    icon = "success",
-                    footer = "",
-                } = params;
-
-                modalMixin.fire({
-                    icon: icon,
-                    title: title,
-                    text: message,
-                    footer: footer,
-                });
-            }
-
-            const error = function (params) {
-                const {
-                    title = "Error",
-                    message = "An error occurred.",
-                    icon = "error",
-                    footer = "",
-                } = params;
-
-                modalMixin.fire({
-                    icon: icon,
-                    title: title,
-                    text: message,
-                    footer: footer,
-                    customClass: {
-                        confirmButton: 'btn btn-danger',
-                    }
-                });
-            }
-
-            async function reserve(params) {
-                const {
-                    message = "",
-                    title = "",
-                } = params;
-
-                const {value: formValues } = await modalMixin.fire({
-                    title: title,
-                    html: message,
-                    backdrop: false,
-                    focusConfirm: false,
-                    showCancelButton: true,
-                    preConfirm: () => {
-                        return [
-                            document.getElementById("startDate").value,
-                            document.getElementById("endDate").value
-                        ];
-                    }
-                });
-
-                if (formValues) {
-                    Swal.fire(JSON.stringify(formValues));
-                }
-            }
-            return {
-                toast: toast,
-                success: success,
-                error: error,
-                reserve: reserve
-            };
-        }
     </script>
 {{ end }}

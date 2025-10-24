@@ -2,7 +2,8 @@ package handlers
 
 import (
 	"bandb/models"
-	"bandb/pkg/render"
+	"bandb/src/render"
+	"encoding/json"
 	"log"
 	"net/http"
 )
@@ -27,6 +28,32 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Received availability request: Start Date: %s, End Date: %s", startDate, endDate)
 
 	_, err := w.Write([]byte("Post request for availability received. Form data logged."))
+	if err != nil {
+		return
+	}
+}
+
+// AvailabilityJSON handles availability and sends JSON response
+func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
+	type jsonResponse struct {
+		OK      bool   `json:"ok"`
+		Message string `json:"message"`
+	}
+
+	resp := jsonResponse{
+		OK:      true,
+		Message: "Available!",
+	}
+
+	out, err := json.MarshalIndent(resp, "", "  ")
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(out)
 	if err != nil {
 		return
 	}

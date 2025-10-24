@@ -2,13 +2,14 @@ package render
 
 import (
 	"bandb/models"
-	"bandb/pkg/config"
+	"bandb/src/config"
 	"bytes"
-	"github.com/justinas/nosurf"
 	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/justinas/nosurf"
 )
 
 var app *config.AppConfig

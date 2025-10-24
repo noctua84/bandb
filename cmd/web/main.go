@@ -1,14 +1,15 @@
 package main
 
 import (
-	"bandb/pkg/config"
-	"bandb/pkg/handlers"
-	"bandb/pkg/render"
+	"bandb/src/config"
+	"bandb/src/handlers"
+	"bandb/src/render"
 	"fmt"
-	"github.com/alexedwards/scs/v2"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/alexedwards/scs/v2"
 )
 
 // config

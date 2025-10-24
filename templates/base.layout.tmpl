@@ -27,6 +27,126 @@
         {{ template "sweetalert-js" .}}
 
         <!-- Custom JavaScript -->
+        <script>
+            function Prompt() {
+                // Initialize SweetAlert2 mixins for modal and toast notifications with default settings
+                const modalMixin = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger',
+                    },
+                    buttonsStyling: false,
+                    confirmButtonText: "Ok",
+                    cancelButtonText: "Cancel",
+                })
+
+                const toastMixin = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', function () {
+                            Swal.stopTimer();
+                        });
+                        toast.addEventListener('mouseleave', function () {
+                            Swal.resumeTimer();
+                        });
+                    }
+                })
+
+                const toast = function (params) {
+                    const {
+                        message = "Default message",
+                        icon = "success",
+                        position = "top-end"
+                    } = params;
+
+                    toastMixin.fire({
+                        icon: icon,
+                        title: message,
+                        position: position,
+                    });
+                }
+
+                const success = function (params) {
+                    const {
+                        title = "",
+                        message = "",
+                        icon = "success",
+                        footer = "",
+                    } = params;
+
+                    modalMixin.fire({
+                        icon: icon,
+                        title: title,
+                        text: message,
+                        footer: footer,
+                    });
+                }
+
+                const error = function (params) {
+                    const {
+                        title = "Error",
+                        message = "An error occurred.",
+                        icon = "error",
+                        footer = "",
+                    } = params;
+
+                    modalMixin.fire({
+                        icon: icon,
+                        title: title,
+                        text: message,
+                        footer: footer,
+                        customClass: {
+                            confirmButton: 'btn btn-danger',
+                        }
+                    });
+                }
+
+                async function reserve(params) {
+                    const {
+                        message = "",
+                        title = "",
+                    } = params;
+
+                    const {value: result } = await modalMixin.fire({
+                        title: title,
+                        html: message,
+                        backdrop: false,
+                        focusConfirm: false,
+                        showCancelButton: true,
+                        preConfirm: () => {
+                            return [
+                                document.getElementById("startDate").value,
+                                document.getElementById("endDate").value
+                            ];
+                        }
+                    });
+
+                    if (result) {
+                        if (result.dismissed !== Swal.DismissReason.cancel) {
+                            if (result.value !== "") {
+                                if (params.callback !== undefined) {
+                                    params.callback(result);
+                                }
+                            } else {
+                                params.callback()
+                            }
+                        } else {
+                            params.callback()
+                        }
+                    }
+                }
+                return {
+                    toast: toast,
+                    success: success,
+                    error: error,
+                    reserve: reserve
+                };
+            }
+        </script>
         {{ block "js" . }}
         {{ end }}
     </body>
