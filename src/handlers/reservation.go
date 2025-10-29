@@ -60,4 +60,29 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("%+v\n", reservation)
+
+	m.App.Session.Put(r.Context(), "reservation", reservation)
+
+	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
+}
+
+func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) {
+	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+
+	if !ok {
+		log.Println("reservation not found in session")
+		m.App.Session.Put(r.Context(), "error", "reservation not found in session or reservation not valid")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	m.App.Session.Remove(r.Context(), "reservation")
+
+	td := models.TemplateData{
+		Data: map[string]interface{}{
+			"reservation": reservation,
+		},
+	}
+
+	render.UseTemplate(w, r, "reservation-summary.page", &td)
 }

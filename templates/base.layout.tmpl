@@ -70,11 +70,11 @@
                     });
                 }
 
-                const success = function (params) {
+                const warning = function (params) {
                     const {
                         title = "",
                         message = "",
-                        icon = "success",
+                        icon = "warning",
                         footer = "",
                     } = params;
 
@@ -141,12 +141,33 @@
                 }
                 return {
                     toast: toast,
-                    success: success,
+                    warning: warning,
                     error: error,
                     reserve: reserve
                 };
             }
+
+            const n = Prompt();
+            {{ with .Error }}
+                n.error({
+                    message: "{{.}}",
+                })
+            {{ end }}
+
+            {{ with .Flash }}
+                n.toast({
+                    message: "{{.}}"
+                })
+            {{ end }}
+
+            {{ with .Warning }}
+                n.warning({
+                    message: "{{.}}"
+                })
+            {{ end }}
         </script>
+
+
         {{ block "js" . }}
         {{ end }}
     </body>
