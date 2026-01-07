@@ -4,6 +4,7 @@ import (
 	"bandb/models"
 	"bandb/src/config"
 	"bytes"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -27,21 +28,21 @@ func AddDefaultData(td *models.TemplateData, req *http.Request) *models.Template
 	return td
 }
 
-func CreateTemplateCache() map[string]*template.Template {
+func CreateTemplateCache(pathToTemplates string) map[string]*template.Template {
 	var cache = map[string]*template.Template{}
 
 	// load layouts:
-	layouts, err := filepath.Glob("templates/*.layout.tmpl")
+	layouts, err := filepath.Glob(fmt.Sprintf("%s/*.layout.tmpl", pathToTemplates))
 	if err != nil {
 		log.Fatalf("Error loading layout templates: %v", err)
 	}
 
-	partials, err := filepath.Glob("templates/partials/*.tmpl")
+	partials, err := filepath.Glob(fmt.Sprintf("%s/partials/*.tmpl", pathToTemplates))
 	if err != nil {
 		log.Fatalf("Error loading partial templates: %v", err)
 	}
 
-	pages, err := filepath.Glob("templates/*.page.tmpl")
+	pages, err := filepath.Glob(fmt.Sprintf("%s/*.page.tmpl", pathToTemplates))
 	if err != nil {
 		log.Fatalf("Error loading page templates: %v", err)
 	}
@@ -76,7 +77,7 @@ func UseTemplate(w http.ResponseWriter, req *http.Request, tmpl string, td *mode
 	if app.UseCache {
 		tc = app.TemplateCache
 	} else {
-		tc = CreateTemplateCache()
+		tc = CreateTemplateCache("./templates")
 	}
 
 	t, ok := tc[tmpl]

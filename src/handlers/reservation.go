@@ -77,7 +77,7 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	}
 
 	m.App.Session.Remove(r.Context(), "reservation")
-
+	
 	td := models.TemplateData{
 		Data: map[string]interface{}{
 			"reservation": reservation,
