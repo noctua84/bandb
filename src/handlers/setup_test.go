@@ -5,7 +5,9 @@ import (
 	"bandb/src/config"
 	"bandb/src/render"
 	"encoding/gob"
+	"io"
 	"net/http"
+	"testing"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
@@ -24,11 +26,16 @@ type handlerTest = struct {
 	expectedStatus int
 }
 
+// -----------------------------------------
+// Test setup
+// -----------------------------------------
+// init registers types for session storage
 func init() {
 	// Register types that will be stored in session
 	gob.Register(models.Reservation{})
 }
 
+// getTestRepository creates a test repository with a session and template cache
 func getTestRepository() *Repository {
 	session := scs.New()
 	app := &config.AppConfig{
@@ -47,6 +54,7 @@ func getTestRepository() *Repository {
 	return NewRepo(app)
 }
 
+// getTestRoutes sets up the routes for testing
 func getTestRoutes() http.Handler {
 	repo := getTestRepository()
 
@@ -69,4 +77,26 @@ func getTestRoutes() http.Handler {
 	mux.Post("/availability-json", repo.AvailabilityJSON)
 
 	return mux
+}
+
+// -----------------------------------------
+// Test helpers
+// -----------------------------------------
+// runGetTest performs a GET request and checks the response status code
+func runGetTest(t *testing.T, client *http.Client, baseURL string, tt handlerTest) {
+	t.Helper()
+	resp, err := client.Get(baseURL + tt.path)
+	if err != nil {
+		t.Fatalf("failed to make request: %v", err)
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			t.Errorf("failed to close response body: %v", err)
+		}
+	}(resp.Body)
+
+	if resp.StatusCode != tt.expectedStatus {
+		t.Errorf("path %s: got %d, want %d", tt.path, resp.StatusCode, tt.expectedStatus)
+	}
 }

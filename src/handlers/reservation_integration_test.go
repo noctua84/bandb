@@ -39,20 +39,7 @@ func TestReservationHandlers(t *testing.T) {
 	for _, tt := range testsReservation {
 		if tt.method == http.MethodGet {
 			t.Run(tt.name, func(t *testing.T) {
-				resp, err := client.Get(ts.URL + tt.path)
-				if err != nil {
-					t.Fatalf("failed to make request: %v", err)
-				}
-				defer func(Body io.ReadCloser) {
-					err := Body.Close()
-					if err != nil {
-						t.Errorf("failed to close response body: %v", err)
-					}
-				}(resp.Body)
-
-				if resp.StatusCode != tt.expectedStatus {
-					t.Errorf("path %s: got %d, want %d", tt.path, resp.StatusCode, tt.expectedStatus)
-				}
+				runGetTest(t, client, ts.URL, tt)
 			})
 		} else if tt.method == http.MethodPost {
 			t.Run(tt.name, func(t *testing.T) {
