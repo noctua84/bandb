@@ -89,14 +89,52 @@ func runGetTest(t *testing.T, client *http.Client, baseURL string, tt handlerTes
 	if err != nil {
 		t.Fatalf("failed to make request: %v", err)
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			t.Errorf("failed to close response body: %v", err)
-		}
-	}(resp.Body)
+
+	defer closeBody(t, resp.Body)
 
 	if resp.StatusCode != tt.expectedStatus {
 		t.Errorf("path %s: got %d, want %d", tt.path, resp.StatusCode, tt.expectedStatus)
+	}
+}
+
+// runPostTest performs a POST request with form data and checks the response status code
+func runPostTest(t *testing.T, client *http.Client, baseURL string, tt handlerTest) {
+	t.Helper()
+	formData := make(map[string][]string)
+	for _, pd := range tt.params {
+		formData[pd.key] = []string{pd.value}
+	}
+
+	resp, err := client.PostForm(baseURL+tt.path, formData)
+	if err != nil {
+		t.Fatalf("failed to make request: %v", err)
+	}
+
+	defer closeBody(t, resp.Body)
+
+	if resp.StatusCode != tt.expectedStatus {
+		t.Errorf("path %s: got %d, want %d", tt.path, resp.StatusCode, tt.expectedStatus)
+	}
+}
+
+// runHandlerTests executes all tests in the slice using the appropriate method
+func runHandlerTests(t *testing.T, client *http.Client, baseURL string, tests []handlerTest) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			switch tt.method {
+			case http.MethodGet:
+				runGetTest(t, client, baseURL, tt)
+			case http.MethodPost:
+				runPostTest(t, client, baseURL, tt)
+			}
+		})
+	}
+}
+
+// closeBody closes the response body and reports any error
+func closeBody(t *testing.T, body io.ReadCloser) {
+	t.Helper()
+	if err := body.Close(); err != nil {
+		t.Errorf("failed to close response body: %v", err)
 	}
 }

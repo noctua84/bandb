@@ -36,35 +36,7 @@ func TestReservationHandlers(t *testing.T) {
 		return http.ErrUseLastResponse
 	}
 
-	for _, tt := range testsReservation {
-		if tt.method == http.MethodGet {
-			t.Run(tt.name, func(t *testing.T) {
-				runGetTest(t, client, ts.URL, tt)
-			})
-		} else if tt.method == http.MethodPost {
-			t.Run(tt.name, func(t *testing.T) {
-				formData := make(map[string][]string)
-				for _, pd := range tt.params {
-					formData[pd.key] = []string{pd.value}
-				}
-
-				resp, err := client.PostForm(ts.URL+tt.path, formData)
-				if err != nil {
-					t.Fatalf("failed to make request: %v", err)
-				}
-				defer func(Body io.ReadCloser) {
-					err := Body.Close()
-					if err != nil {
-						t.Errorf("failed to close response body: %v", err)
-					}
-				}(resp.Body)
-
-				if resp.StatusCode != tt.expectedStatus {
-					t.Errorf("path %s: got %d, want %d", tt.path, resp.StatusCode, tt.expectedStatus)
-				}
-			})
-		}
-	}
+	runHandlerTests(t, client, ts.URL, testsReservation)
 }
 
 // Test the full reservation flow with session persistence

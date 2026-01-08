@@ -23,11 +23,5 @@ func TestHandlers(t *testing.T) {
 	// Client that accepts self-signed certs
 	client := ts.Client()
 
-	for _, tt := range tests {
-		if tt.method == http.MethodGet {
-			t.Run(tt.name, func(t *testing.T) {
-				runGetTest(t, client, ts.URL, tt)
-			})
-		}
-	}
+	runHandlerTests(t, client, ts.URL, tests)
 }
