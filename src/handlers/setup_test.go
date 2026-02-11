@@ -68,6 +68,7 @@ func getTestRoutes() http.Handler {
 	mux.Get("/generals", repo.Generals)
 	mux.Get("/majors", repo.Majors)
 	mux.Get("/contact", repo.Contact)
+
 	mux.Get("/reservation", repo.Reservation)
 	mux.Post("/reservation", repo.PostReservation)
 	mux.Get("/reservation-summary", repo.ReservationSummary)

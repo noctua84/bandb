@@ -3,6 +3,7 @@ package handlers
 import (
 	"bandb/models"
 	"bandb/src/forms"
+	"bandb/src/helpers"
 	"bandb/src/render"
 	"log"
 	"net/http"
@@ -29,7 +30,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 
 	if err != nil {
-		log.Println(err)
+		helpers.ClientError(w, http.StatusBadRequest)
 		return
 	}
 
@@ -70,14 +71,14 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 
 	if !ok {
-		log.Println("reservation not found in session")
+		helpers.ClientError(w, http.StatusNotFound)
 		m.App.Session.Put(r.Context(), "error", "reservation not found in session or reservation not valid")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	m.App.Session.Remove(r.Context(), "reservation")
-	
+
 	td := models.TemplateData{
 		Data: map[string]interface{}{
 			"reservation": reservation,

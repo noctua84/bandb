@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bandb/models"
+	"bandb/src/helpers"
 	"bandb/src/render"
 	"encoding/json"
 	"log"
@@ -28,7 +29,9 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Received availability request: Start Date: %s, End Date: %s", startDate, endDate)
 
 	_, err := w.Write([]byte("Post request for availability received. Form data logged."))
+
 	if err != nil {
+		helpers.ServerError(w, err)
 		return
 	}
 }
@@ -47,14 +50,14 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 
 	out, err := json.MarshalIndent(resp, "", "  ")
 	if err != nil {
-		log.Println(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		helpers.ServerError(w, err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(out)
 	if err != nil {
+		helpers.ServerError(w, err)
 		return
 	}
 }

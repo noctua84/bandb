@@ -4,11 +4,13 @@ import (
 	"bandb/models"
 	"bandb/src/config"
 	"bandb/src/handlers"
+	"bandb/src/helpers"
 	"bandb/src/render"
 	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
@@ -44,6 +46,9 @@ func run() error {
 	// change this to true in production
 	app.InProduction = false
 
+	app.InfoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.ErrorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
 	app.UseCache = false
 
 	// session
@@ -74,6 +79,7 @@ func run() error {
 	// handlers repository
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
+	helpers.NewHelpers(&app)
 
 	return nil
 }

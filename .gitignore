@@ -1,2 +1,9 @@
 # IDE Configs
 .idea/
+
+# coverage
+coverage.out
+
+#executable files
+*.exe
+bandb
