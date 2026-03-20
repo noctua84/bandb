@@ -1,0 +1,5 @@
+create_table("rooms") {
+	t.Column("id", "int", {primary: true, auto_increment: true})
+	t.Column("room_name", "string", {})
+	t.Timestamps()
+}

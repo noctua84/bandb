@@ -1,0 +1,17 @@
+create_table("room_restrictions") {
+	t.Column("id", "int", {primary: true, auto_increment: true})
+	t.Column("room_id", "int", {})
+	t.Column("reservation_id", "int", {})
+	t.Column("restriction_id", "int", {})
+	t.Column("start_date", "timestamp", {})
+	t.Column("end_date", "timestamp", {})
+	t.Timestamps()
+
+	t.ForeignKey("room_id", {"rooms": ["id"]}, {"on_delete": "no action", "on_update": "cascade"})
+	t.ForeignKey("reservation_id", {"reservations": ["id"]}, {"on_delete": "no action", "on_update": "cascade"})
+	t.ForeignKey("restriction_id", {"room_restrictions": ["id"]}, {"on_delete": "no action", "on_update": "cascade"})
+
+	t.Index("room_id", {})
+	t.Index(["start_date", "end_date"], {})
+	t.Index("reservation_id", {})
+}

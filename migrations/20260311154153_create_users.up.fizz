@@ -1,0 +1,12 @@
+create_table("users") {
+	t.Column("id", "int", {primary: true, auto_increment: true})
+	t.Column("external_id", "uuid", {})
+	t.Column("first_name", "string", {})
+	t.Column("last_name", "string", {})
+	t.Column("email", "string", {unique: true})
+	t.Column("password", "string", {})
+	t.Column("phone", "string", {})
+	t.Column("access_level", "int", {"default": 1})
+	t.Column("joined_at", "timestamp", {})
+	t.Timestamps()
+}

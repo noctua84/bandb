@@ -7,3 +7,6 @@ coverage.out
 #executable files
 *.exe
 bandb
+
+# other
+database.yml

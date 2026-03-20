@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/justinas/nosurf"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
 // NoSurf is a middleware that adds CSRF protection to all POST requests
