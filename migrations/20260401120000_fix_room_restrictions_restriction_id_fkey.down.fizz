@@ -1,0 +1,2 @@
+drop_foreign_key("room_restrictions", "room_restrictions_restriction_id_fkey", {})
+add_foreign_key("room_restrictions", "restriction_id", {"room_restrictions": ["id"]}, {"on_delete": "no action", "on_update": "cascade"})

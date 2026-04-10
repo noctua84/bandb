@@ -3,7 +3,10 @@ package handlers
 import (
 	"bandb/models"
 	"bandb/src/config"
+	"bandb/src/driver"
 	"bandb/src/render"
+	"bandb/src/repository"
+	"bandb/src/repository/dbrepo"
 	"net/http"
 )
 
@@ -11,11 +14,13 @@ var Repo *Repository
 
 type Repository struct {
 	App *config.AppConfig
+	DB  repository.DatabaseRepo
 }
 
-func NewRepo(a *config.AppConfig) *Repository {
+func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
+		DB:  dbrepo.NewPostgresRepo(a, db.SQL),
 	}
 }
 

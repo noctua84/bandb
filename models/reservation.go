@@ -7,6 +7,8 @@ import (
 // Reservation is used by pop to map your reservations database table to your go code.
 type Reservation struct {
 	ID        int       `json:"id" db:"id"`
+	RoomID    int       `json:"room_id" db:"room_id"`
+	Room      Room      `json:"room"`
 	FirstName string    `json:"first_name" db:"first_name"`
 	LastName  string    `json:"last_name" db:"last_name"`
 	Email     string    `json:"email" db:"email"`

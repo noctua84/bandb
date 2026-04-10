@@ -7,6 +7,8 @@ import (
 	"bandb/src/render"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 // Reservation handles the reservation page (GET)
@@ -34,11 +36,33 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sd := r.Form.Get("start_date")
+	ed := r.Form.Get("end_date")
+
+	// go time quirk related
+	timeLayout := "2006-01-02"
+	startDate, err := time.Parse(timeLayout, sd)
+	if err != nil {
+		helpers.ClientError(w, http.StatusBadRequest)
+	}
+	endDate, err := time.Parse(timeLayout, ed)
+	if err != nil {
+		helpers.ClientError(w, http.StatusBadRequest)
+	}
+
+	roomId, err := strconv.Atoi(r.Form.Get("room_id"))
+	if err != nil {
+		helpers.ClientError(w, http.StatusBadRequest)
+	}
+
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
 		Email:     r.Form.Get("email"),
 		Phone:     r.Form.Get("phone"),
+		StartDate: startDate,
+		EndDate:   endDate,
+		RoomID:    roomId,
 	}
 
 	form := forms.New(r.PostForm)
@@ -62,6 +86,10 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("%+v\n", reservation)
 
+	err = m.DB.InsertReservation(reservation)
+	if err != nil {
+		helpers.ClientError(w, http.StatusInternalServerError)
+	}
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)

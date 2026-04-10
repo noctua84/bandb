@@ -3,9 +3,11 @@ package main
 import (
 	"bandb/models"
 	"bandb/src/config"
+	"bandb/src/driver"
 	"bandb/src/handlers"
 	"bandb/src/helpers"
 	"bandb/src/render"
+	"database/sql"
 	"encoding/gob"
 	"fmt"
 	"log"
@@ -23,10 +25,17 @@ var app config.AppConfig
 var session *scs.SessionManager
 
 func main() {
-	err := run()
+	db, err := run()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	defer func(SQL *sql.DB) {
+		err := SQL.Close()
+		if err != nil {
+			log.Fatal("Error closing database connection: " + err.Error())
+		}
+	}(db.SQL)
 
 	fmt.Printf("Starting Server and listening on %s\n", port)
 
@@ -41,8 +50,12 @@ func main() {
 	}
 }
 
-func run() error {
+func run() (*driver.DB, error) {
 	gob.Register(models.Reservation{})
+	gob.Register(models.Room{})
+	gob.Register(models.User{})
+	gob.Register(models.Restriction{})
+	
 	// change this to true in production
 	app.InProduction = false
 
@@ -60,13 +73,21 @@ func run() error {
 
 	app.Session = session
 
+	// connect to database
+	log.Println("Connecting to database...")
+	db, err := driver.ConnectSQL("postgresql://postgres:postgres@localhost:5432/bandb?sslmode=disable")
+	if err != nil {
+		log.Fatal("Error connecting to database: ", err)
+	}
+	log.Println("Connected to database")
+
 	// create template cache
 	if app.UseCache {
 		fmt.Println("Creating template cache")
 
 		tc := render.CreateTemplateCache("./templates")
 		if tc == nil {
-			return fmt.Errorf("could not create template cache")
+			return nil, fmt.Errorf("could not create template cache")
 		}
 
 		// assign template cache to app config
@@ -77,9 +98,9 @@ func run() error {
 	render.NewTemplates(&app)
 
 	// handlers repository
-	repo := handlers.NewRepo(&app)
+	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
 	helpers.NewHelpers(&app)
 
-	return nil
+	return db, nil
 }
