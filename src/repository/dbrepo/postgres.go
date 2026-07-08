@@ -10,7 +10,7 @@ func (m *postgresRepo) AllUsers() bool {
 	return true
 }
 
-func (m *postgresRepo) InsertReservation(res models.Reservation) (bool, error) {
+func (m *postgresRepo) InsertReservation(res models.Reservation) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -19,8 +19,8 @@ func (m *postgresRepo) InsertReservation(res models.Reservation) (bool, error) {
 	_, err := m.DB.ExecContext(ctx, stmt, res.FirstName, res.LastName, res.Email, res.Phone, res.StartDate, res.EndDate, res.RoomID, time.Now(), time.Now())
 
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }
